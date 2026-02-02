@@ -50,6 +50,7 @@ foreach(test_file ${tests})
 
         set(APP_COMPILER_FLAGS_${test_name}
                 -Os
+                -DBUILD_NATIVE=1
                 -DX86_BUILD=1)
     endif()
 endforeach()

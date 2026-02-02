@@ -67,13 +67,15 @@ def test_calc_coherence(aec_obj, rng, dut_runner):
   op = dut_runner(input_data)
 
   sections = np.cumsum(np.tile([2, 2], test_frames))[:-1].astype(np.int32)
-  op_split = np.split(op.sections)
+  op_split = np.split(op, sections)
 
-  print(op_split)
-
-  # dut_coh = np.concatenate(op_split[0::2])
-  # dut_coh_slow = np.concatenate(op_split[1::2])
+  dut_coh = np.concatenate(op_split[0::2])
+  dut_coh = pvc.float_s32_arr_to_double(dut_coh)
+  dut_coh_slow = np.concatenate(op_split[1::2])
+  dut_coh_slow = pvc.float_s32_arr_to_double(dut_coh_slow)
 
   print(ref_coh)
+  print(dut_coh)
   print(ref_coh_slow)
+  print(dut_coh_slow)
 

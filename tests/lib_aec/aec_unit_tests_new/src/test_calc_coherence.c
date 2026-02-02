@@ -8,15 +8,15 @@
 #include "aec.h"
 #include "aec_priv.h"
 
-#if BUILD_NATIVE
-aec_task_distribution_t tdist = aec_tdist_chans2_threads1;
-#else
-aec_task_distribution_t tdist = aec_tdist_chans2_threads2;
-#endif
-
 static aec_state_t aec_state;
 void test_init()
 {
+    #if BUILD_NATIVE
+    aec_task_distribution_t tdist = aec_tdist_chans2_threads1;
+    #else
+    aec_task_distribution_t tdist = aec_tdist_chans2_threads2;
+    #endif
+
     aec_init(&aec_state, 1, 1, 9, 0, &tdist);
 }
 
@@ -49,5 +49,5 @@ void test(int32_t *output, int32_t *input)
     coherence_mu_params_t *coh_mu_state_ptr = &aec_state.main_state.shared_state->coh_mu_state[0];
 
     memcpy(output, &coh_mu_state_ptr->coh, sizeof(float_s32_t));
-    memcpy((int8_t *)output[sizeof(float_s32_t)], &coh_mu_state_ptr->coh_slow, sizeof(float_s32_t));
+    memcpy((int8_t *)output + sizeof(float_s32_t), &coh_mu_state_ptr->coh_slow, sizeof(float_s32_t));
 }
