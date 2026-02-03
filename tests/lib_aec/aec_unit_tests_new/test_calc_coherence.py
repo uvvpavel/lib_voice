@@ -4,12 +4,6 @@ import numpy as np
 import py_vs_c_utils as pvc
 
 
-def rand_int32_arr(rng, size=None, hr_max=1, min=np.iinfo(np.int32).min, max=np.iinfo(np.int32).max+1):
-    hr = rng.integers(hr_max)
-    data = rng.integers(min, max, size=size, dtype=np.int32)
-    data >>= hr
-    return data, hr
-
 @pytest.mark.parametrize("y_ch, x_ch, main_ph, shadow_ph", [[1, 1, 9, 0]])
 def test_calc_coherence(aec_obj, rng, dut_runner):
   frame_advance = aec_obj.frame_advance
@@ -26,13 +20,13 @@ def test_calc_coherence(aec_obj, rng, dut_runner):
   ref_coh_slow = np.empty(0, dtype=np.float64)
 
   for _ in range(test_frames):
-    y, _ = rand_int32_arr(rng, frame_advance, 4)
+    y = pvc.rand_int32_arr(rng, frame_advance, 4)
     y_exp = rng.integers(-31, 32, size=1, dtype=np.int32)
 
     input_data = np.append(input_data, y_exp)
     input_data = np.append(input_data, y)
 
-    y_hat, _ = rand_int32_arr(rng, frame_advance, 4)
+    y_hat = pvc.rand_int32_arr(rng, frame_advance, 4)
     y_hat_exp = rng.integers(-31, 32, size=1, dtype=np.int32)
 
     input_data = np.append(input_data, y_hat_exp)

@@ -6,6 +6,12 @@ import soundfile as sf
 from pathlib import Path
 import sys
 
+def rand_int32_arr(rng, size=None, hr_max=1, min=np.iinfo(np.int32).min, max=np.iinfo(np.int32).max+1):
+    hr = rng.integers(hr_max)
+    data = rng.integers(min, max, size=size, dtype=np.int32)
+    data >>= hr
+    return data
+
 # Turn a float32 from C into an np float scalar
 def float_s32_to_float(float_s32):
     return np.ldexp(float_s32.mant, float_s32.exp)
