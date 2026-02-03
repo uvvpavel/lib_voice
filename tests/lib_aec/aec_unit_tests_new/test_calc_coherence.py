@@ -4,20 +4,6 @@ import numpy as np
 import py_vs_c_utils as pvc
 
 
-# runtime:
-# bypass = rand % 2
-
-# y:
-# hr = rand % 4
-# exp = -31,32
-# data rand >> hr
-# 512
-
-# y_hat: same as y
-
-# out: 2 x float_s32_t
-# accuracy: 1<< 13
-
 def rand_int32_arr(rng, size=None, hr_max=1, min=np.iinfo(np.int32).min, max=np.iinfo(np.int32).max+1):
     hr = rng.integers(hr_max)
     data = rng.integers(min, max, size=size, dtype=np.int32)
@@ -26,39 +12,39 @@ def rand_int32_arr(rng, size=None, hr_max=1, min=np.iinfo(np.int32).min, max=np.
 
 @pytest.mark.parametrize("y_ch, x_ch, main_ph, shadow_ph", [[1, 1, 9, 0]])
 def test_calc_coherence(aec_obj, rng, dut_runner):
-  proc_fr_len = 512
+  frame_advance = aec_obj.frame_advance
 
-  y_len = proc_fr_len + 2 # for hr and exp
+  y_len = frame_advance + 1 # for exp
   y_hat_len = y_len
 
   out_len = 2 * 2 # 2 x float_s32_t
   in_len = y_len + y_hat_len
   input_data = np.array([in_len, out_len], dtype=np.int32)
 
-  test_frames = 10
+  test_frames = 1<<10
   ref_coh = np.empty(0, dtype=np.float64)
   ref_coh_slow = np.empty(0, dtype=np.float64)
 
   for _ in range(test_frames):
-    y, y_hr = rand_int32_arr(rng, proc_fr_len, 4)
+    y, _ = rand_int32_arr(rng, frame_advance, 4)
     y_exp = rng.integers(-31, 32, size=1, dtype=np.int32)
 
     input_data = np.append(input_data, y_exp)
-    input_data = np.append(input_data, y_hr)
     input_data = np.append(input_data, y)
 
-    y_hat, y_hat_hr = rand_int32_arr(rng, proc_fr_len, 4)
+    y_hat, _ = rand_int32_arr(rng, frame_advance, 4)
     y_hat_exp = rng.integers(-31, 32, size=1, dtype=np.int32)
 
     input_data = np.append(input_data, y_hat_exp)
-    input_data = np.append(input_data, y_hat_hr)
     input_data = np.append(input_data, y_hat)
 
     y_fl = pvc.int32_to_double(y, y_exp)
     y_hat_fl = pvc.int32_to_double(y_hat, y_hat_exp)
 
-    aec_obj.y_data[0] = y_fl
-    aec_obj.y_hat[0] = y_hat
+    start_i = frame_advance
+    stop_i = frame_advance * 2
+    aec_obj.y_data[0][start_i:stop_i] = y_fl
+    aec_obj.y_hat[0][start_i:stop_i] = y_hat_fl
     aec_obj.calc_coherence()
 
     ref_coh = np.append(ref_coh, aec_obj.coh)
@@ -74,8 +60,5 @@ def test_calc_coherence(aec_obj, rng, dut_runner):
   dut_coh_slow = np.concatenate(op_split[1::2])
   dut_coh_slow = pvc.float_s32_arr_to_double(dut_coh_slow)
 
-  print(ref_coh)
-  print(dut_coh)
-  print(ref_coh_slow)
-  print(dut_coh_slow)
-
+  np.testing.assert_allclose(ref_coh, dut_coh, rtol=0, atol=2e-1)
+  np.testing.assert_allclose(ref_coh_slow, dut_coh_slow, rtol=0, atol=1e-3)

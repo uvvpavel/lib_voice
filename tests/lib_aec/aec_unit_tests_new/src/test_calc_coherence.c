@@ -18,31 +18,18 @@ void test_init()
     #endif
 
     aec_init(&aec_state, 1, 1, 9, 0, &tdist);
+    aec_state.main_state.shared_state->ref_active_flag = 1;
 }
 
 void test(int32_t *output, int32_t *input)
 {
-    aec_frame_init(&aec_state.main_state, NULL, &input[2], &input[AEC_PROC_FRAME_LENGTH + 2 + 2]); //frame init will copy y[240:480] into output
+    // test_calc_coherence is interested in y_hat[240:480] and prev_y[0:240]
+    aec_state.main_state.shared_state->prev_y[0].data = &input[1];
+    aec_state.main_state.shared_state->prev_y[0].exp = input[0];
 
     bfp_s32_init(&aec_state.main_state.y_hat[0], (int32_t*)&aec_state.main_state.Y_hat[0].data[0], 0, AEC_PROC_FRAME_LENGTH, 0);
-
-
-    aec_state.main_state.shared_state->y[0].exp = input[0];
-    aec_state.main_state.shared_state->y[0].hr = input[1];
-    aec_state.main_state.shared_state->y[0].data = &input[2];
-
-    aec_state.main_state.y_hat[0].exp = input[AEC_PROC_FRAME_LENGTH + 2];
-    aec_state.main_state.y_hat[0].hr = input[AEC_PROC_FRAME_LENGTH + 2 + 1];
-    aec_state.main_state.y_hat[0].data = &input[AEC_PROC_FRAME_LENGTH + 2 + 2];
-
-    // since aec_state.main_state.shared_state->y is being initialised with a new frame after calling aec_frame_init(), 
-    // we need to update aec_state.main_state->shared_state->prev_y again since that's where y[240:480] is read from in aec_calc_coherence()
-    memcpy(aec_state.main_state.shared_state->prev_y[0].data,
-        &aec_state.main_state.shared_state->y[0].data[AEC_FRAME_ADVANCE],
-        (AEC_PROC_FRAME_LENGTH-AEC_FRAME_ADVANCE)*sizeof(int32_t));
-
-    aec_state.main_state.shared_state->prev_y[0].exp = aec_state.main_state.shared_state->y[0].exp;
-    aec_state.main_state.shared_state->prev_y[0].hr = aec_state.main_state.shared_state->y[0].hr;
+    memcpy(&aec_state.main_state.y_hat[0].data[AEC_FRAME_ADVANCE], &input[AEC_FRAME_ADVANCE + 1 + 1], AEC_FRAME_ADVANCE * sizeof(int32_t));
+    aec_state.main_state.y_hat[0].exp = input[AEC_FRAME_ADVANCE + 1];
 
     aec_calc_coherence(&aec_state.main_state, 0);
 
