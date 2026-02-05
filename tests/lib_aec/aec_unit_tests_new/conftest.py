@@ -4,6 +4,7 @@ import pytest
 from pathlib import Path
 import py_voice.modules.aec as aec
 import py_voice.config.config as pv_config
+import py_voice.core.fdaf_controller as fdc
 import py_voice
 import numpy as np
 from run_dut import run_dut
@@ -13,8 +14,7 @@ default_conf_path = PY_VOICE_ROOT / "config" / "defaults.json"
 default_conf = pv_config.get_config_dict(default_conf_path)
 bin_dir_path = Path(__file__).parent / "bin"
 
-@pytest.fixture
-def aec_obj(y_ch, x_ch, main_ph, shadow_ph):
+def set_aec_conf(y_ch, x_ch, main_ph, shadow_ph):
     test_conf = default_conf
     test_conf["general"]["modules"] = ["aec"]
     test_conf["general"]["input_channel_count"] = y_ch + x_ch
@@ -26,7 +26,19 @@ def aec_obj(y_ch, x_ch, main_ph, shadow_ph):
     test_conf["aec"]["phases"] = main_ph
     test_conf["aec"]["phases_shadow"] = shadow_ph
 
+    return test_conf
+
+@pytest.fixture
+def aec_obj(y_ch, x_ch, main_ph, shadow_ph):
+    test_conf = set_aec_conf(y_ch, x_ch, main_ph, shadow_ph)
+
     return aec.aec(test_conf)
+
+@pytest.fixture
+def fdaf_obj(y_ch, x_ch, main_ph, shadow_ph):
+    test_conf = set_aec_conf(y_ch, x_ch, main_ph, shadow_ph)
+
+    return fdc.fdaf_controller(test_conf, "aec")
 
 @pytest.fixture
 def dut_runner(request, target):

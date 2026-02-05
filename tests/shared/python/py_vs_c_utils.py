@@ -60,6 +60,8 @@ def float_s32_arr_to_double(flat_data):
 # of form: exponent (i32), data array (i32)
 # to the np.float64 array
 def bfp_s32_arr_to_double(flat_data, bfp_len, num_frames):
+    in_len = (bfp_len + 1) * num_frames
+    assert in_len == len(flat_data), f"Binary data len: {len(flat_data)} does not align with the frame len: {in_len}"
     # Do cumulative sum to get indexes for exponents and data array starts
     sections = np.cumsum(np.tile([1, bfp_len], num_frames))[:-1].astype(np.int32)
     split = np.split(flat_data, sections)
