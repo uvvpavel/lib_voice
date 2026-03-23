@@ -13,15 +13,7 @@ execute_process(
 )
 
 # Add tflite_micro
-if (APP_BUILD_ARCH STREQUAL "xs3a")
-    set(XMOS_AITOOLSLIB_PATH_CMAKE "${XMOS_AITOOLSLIB_PATH}/buildfiles/aitoolslib.cmake")
-    set(MODEL_TH 0.50)
-    set(ARCH_STR "XS3A")
-elseif (APP_BUILD_ARCH STREQUAL "vx4b")
-    set(XMOS_AITOOLSLIB_PATH_CMAKE "${CMAKE_CURRENT_LIST_DIR}/../new_ai_tools/libxtflitemicro.cmake")
-    set(MODEL_TH 2)
-    set(ARCH_STR "VX4A")
-endif()
+set(XMOS_AITOOLSLIB_PATH_CMAKE "${XMOS_AITOOLSLIB_PATH}/buildfiles/aitoolslib.cmake")
 
 if(XMOS_AITOOLSLIB_PATH STREQUAL "")
     message(FATAL_ERROR "Path to XMOS AI tools NOT found")
@@ -46,6 +38,14 @@ set(MODEL_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/src.autogen/vnr_model/)
 set(MODEL_IN_PATH ${CMAKE_CURRENT_LIST_DIR}/src/vnr/model/trained_model.tflite)
 set(MODEL_OUT_PATH ${MODEL_OUT_DIR}/trained_model_xcore.tflite)
 set(MODEL_N_CORES 1)
+
+if (APP_BUILD_ARCH STREQUAL "xs3a")
+    set(MODEL_TH 0.50)
+    set(ARCH_STR "XS3A")
+elseif (APP_BUILD_ARCH STREQUAL "vx4b")
+    set(MODEL_TH 2)
+    set(ARCH_STR "VX4A")
+endif()
 
 file(MAKE_DIRECTORY ${MODEL_OUT_DIR})
 
