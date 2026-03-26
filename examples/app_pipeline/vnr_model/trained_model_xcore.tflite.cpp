@@ -1,7 +1,7 @@
 // This file is generated. Do not edit.
-// Generated on: 18.03.2026 13:45:19
+// Generated on: 26.03.2026 10:36:15
 // Compiler version: Not_built_with_version_info!
-// Args: ../../lib_voice/src/vnr/model/trained_model.tflite -tc 1 -o build/src.autogen/vnr_model/trained_model_xcore.tflite --xcore-conv-err-threshold 2 --xcore-target-arch=VX4A 
+// Args: /home/paveluvarov/sandboxes/lib_voice/lib_voice/src/vnr/model/trained_model.tflite -tc 1 -o /home/paveluvarov/sandboxes/lib_voice/examples/app_pipeline/build_16/src.autogen/vnr_model//trained_model_xcore.tflite --xcore-conv-err-threshold 2 --xcore-naming-prefix vnr_model_ --xcore-target-arch=VX4A 
 
 #include "lib_tflite_micro/api/xcore_config.h"
 #include "lib_nn/api/version.h"
@@ -1379,25 +1379,25 @@ void ResetModifiedTFLiteOutputTensorDims(){
 
 } // namespace
 
-TfLiteTensor* model_input(int index) {
+TfLiteTensor* vnr_model_input(int index) {
   return &ctx.tensors[inTensorIndices[index]];
 }
 
-TfLiteTensor* model_output(int index) {
+TfLiteTensor* vnr_model_output(int index) {
   return &ctx.tensors[outTensorIndices[index]];
 }
 
-size_t model_input_size(int index) {
-  return TensorBytes(model_input(index));
+size_t vnr_model_input_size(int index) {
+  return TensorBytes(vnr_model_input(index));
 }
 
-size_t model_output_size(int index) {
-  return TensorBytes(model_output(index));
+size_t vnr_model_output_size(int index) {
+  return TensorBytes(vnr_model_output(index));
 }
 
 
 #pragma stackfunction 1000
-TfLiteStatus model_init_with_paging(void *weights_data_ptr, void *paging_ptr) {
+TfLiteStatus vnr_model_init_with_paging(void *weights_data_ptr, void *paging_ptr) {
 
 // Set target arch based on the compiled model
   SetNNTargetArch(nn_target_arch_t::TARGET_ARCH_VX4A);
@@ -1542,11 +1542,6 @@ TfLiteStatus model_init_with_paging(void *weights_data_ptr, void *paging_ptr) {
   return kTfLiteOk;
 }
 
-#pragma stackfunction 1000
-TfLiteStatus model_init(void *weights_data_ptr) {
-  return model_init_with_paging(weights_data_ptr, nullptr);
-}
-
 #if defined(__VX4A__) || defined(__VX4B__)
 #define STACKFUNCTION(FN, BYTES) \
   asm(".globl " # FN ); \
@@ -1555,19 +1550,32 @@ TfLiteStatus model_init(void *weights_data_ptr) {
   asm(".resource_list_empty " # FN ", \"parallel_callees\""); \
   asm(".resource_const " # FN ", \"stack_frame_bytes\", " # BYTES);
 
+#define STACKFUNCTION2(FN, BYTES) \
+  asm(".globl %[fn]" : : [fn] "i"(FN)); \
+  asm(".resource_list_empty %[fn], \"callees\"" : : [fn] "i"(FN)); \
+  asm(".resource_list_empty %[fn], \"tail_callees\"" : : [fn] "i"(FN)); \
+  asm(".resource_list_empty %[fn], \"parallel_callees\"": : [fn] "i"(FN)); \
+  asm(".resource_const %[fn], \"stack_frame_bytes\", " # BYTES : : [fn] "i"(FN));
+
 #define STACKFUNCTION_STATIC(FN, BYTES) \
   asm(".resource_list_empty " # FN ", \"callees\""); \
   asm(".resource_list_empty " # FN ", \"tail_callees\""); \
   asm(".resource_list_empty " # FN ", \"parallel_callees\""); \
   asm(".resource_const " # FN ", \"stack_frame_bytes\", " # BYTES);
 
-STACKFUNCTION(_Z22model_init_with_pagingPvS_, 1000);
+// STACKFUNCTION(_Z22model_init_with_pagingPvS_, 1000);
 STACKFUNCTION(fast_read_loop, 1000);
 // STACKFUNCTION(_Z12model_invokev, 1000);
 // STACKFUNCTION(__call_exitprocs_impl, 1000);
 STACKFUNCTION_STATIC(_ZN12_GLOBAL__N_117mg_InvokeSubgraphEi, 1000);
 // STACKFUNCTION(_Z10model_initPv);
 #endif
+
+#pragma stackfunction 1000
+TfLiteStatus vnr_model_init(void *weights_data_ptr) {
+  STACKFUNCTION2(vnr_model_init_with_paging, 1000)
+  return vnr_model_init_with_paging(weights_data_ptr, nullptr);
+}
 
 TfLiteStatus mg_status;
 #pragma stackfunction 1000
@@ -1578,7 +1586,7 @@ extern "C" void invoke_subgraph_c_trampoline(){
 extern "C" void par_invoke_1(thread_info_t *thread_info);
 
 #pragma stackfunction 1000
-TfLiteStatus model_invoke() {
+TfLiteStatus vnr_model_invoke() {
 
 #ifdef TFLMC_XCORE_PROFILE
   printf("\n\n\nProfiling invoke()...\n");
@@ -1627,7 +1635,7 @@ TfLiteStatus model_invoke() {
   return kTfLiteOk;
 }
 
-TfLiteStatus model_reset() {
+TfLiteStatus vnr_model_reset() {
   // Reset variable tensors
   for (int i = 0; i < 0; i++) {
     memset(tflTensors[varTensors_index[i]].data.data, tflTensors[varTensors_index[i]].params.zero_point, TensorBytes(&tflTensors[varTensors_index[i]]));
@@ -1644,7 +1652,7 @@ extern int write_sswitch_reg(unsigned tile, unsigned reg, unsigned data);
 }
 
 #pragma stackfunction 1000
-void model_ioserver(chanend_t c) {
+void vnr_model_ioserver(chanend_t c) {
     unsigned tensor_num = 0;
     extern unsigned tile[];
     while(1) {
@@ -1652,23 +1660,23 @@ void model_ioserver(chanend_t c) {
         switch(cmd) {
         case IOSERVER_TENSOR_RECV_INPUT: {
             ioserver_tensor_recv_input(
-                c, (unsigned int *) model_input(tensor_num)->data.u32,
-                (model_input_size(tensor_num) + 3) / sizeof(int));
+                c, (unsigned int *) vnr_model_input(tensor_num)->data.u32,
+                (vnr_model_input_size(tensor_num) + 3) / sizeof(int));
             break;
         }
         case IOSERVER_TENSOR_SEND_OUTPUT: {
             ioserver_tensor_send_output(
-                c, (unsigned int*) model_output(tensor_num)->data.u32, 
-                (model_output_size(tensor_num) + 3) / sizeof(int));
+                c, (unsigned int*) vnr_model_output(tensor_num)->data.u32, 
+                (vnr_model_output_size(tensor_num) + 3) / sizeof(int));
             break;
         }
         case IOSERVER_INVOKE: {
-            model_invoke();
+            vnr_model_invoke();
             ioserver_command_acknowledge(c, IOSERVER_ACK);
             break;
         }
         case IOSERVER_RESET: {
-            model_reset();
+            vnr_model_reset();
             ioserver_command_acknowledge(c, IOSERVER_ACK);
             break;
         }
@@ -1691,7 +1699,7 @@ void model_ioserver(chanend_t c) {
 }
 #else 
 
-void model_ioserver(void *io_channel) {}
+void vnr_model_ioserver(void *io_channel) {}
 
 #endif // __xcore__
 
