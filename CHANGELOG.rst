@@ -6,6 +6,12 @@ UNRELEASED
 
   * CHANGED: `app_pipeline` example is now single-tile 
 
+1.0.1
+-----
+
+  * CHANGED: Corrected project name in CMakeLists.txt
+  * CHANGED: Added prefix to VNR model name
+
 1.0.0
 -----
 
