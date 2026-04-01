@@ -1,5 +1,5 @@
 set(LIB_NAME lib_voice)
-set(LIB_VERSION 1.0.0)
+set(LIB_VERSION 1.0.1)
 set(LIB_DEPENDENT_MODULES 
     "lib_xcore_math(develop)" 
     "ai_tools(xcommon_cmake)"
