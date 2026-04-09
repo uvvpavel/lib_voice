@@ -6,7 +6,7 @@ enable_language(CXX C ASM)
 set(SANDBOX_DIR ${CMAKE_CURRENT_LIST_DIR}/../../..)
 add_subdirectory(${SANDBOX_DIR}/lib_xcore_math/lib_xcore_math ${CMAKE_BINARY_DIR}/lib_xcore_math)
 add_subdirectory(${SANDBOX_DIR}/ai_tools/ai_tools ${CMAKE_BINARY_DIR}/ai_tools)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../lib_voice ${CMAKE_BINARY_DIR}/lib_voice)
+add_subdirectory(${SANDBOX_DIR}/lib_voice ${CMAKE_BINARY_DIR}/lib_voice)
 
 ### Add executable
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
