@@ -1,6 +1,9 @@
 set(LIB_NAME lib_voice)
-set(LIB_VERSION 1.0.0)
-set(LIB_DEPENDENT_MODULES "lib_xcore_math(develop)")
+set(LIB_VERSION 1.0.1)
+set(LIB_DEPENDENT_MODULES 
+    "lib_xcore_math(develop)" 
+    "ai_tools(xcommon_cmake)"
+)
 
 set(LIB_COMPILER_FLAGS
             -g
@@ -68,8 +71,6 @@ foreach(target ${APP_BUILD_TARGETS})
         endforeach()
     endif()
 
-    # Link aitools with the targets
-    target_link_libraries(${target} PRIVATE tflite_micro)
 if(BUILD_NATIVE)
     target_compile_features(${target} PRIVATE cxx_std_11)
 endif()
