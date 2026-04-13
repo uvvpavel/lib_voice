@@ -1,4 +1,13 @@
 
+## Dependencies
+include(FetchContent)
+
+FetchContent_Declare(
+    ai_tools
+    GIT_REPOSITORY https://github.com/xmos/ai_tools
+    GIT_TAG        xcommon_cmake # pin version!
+)
+
 ## Common compile options
 add_library(lib_voice_compile_options INTERFACE)
 
@@ -36,6 +45,7 @@ target_link_libraries(lib_voice_module_aec
 add_library(lib_voice::aec ALIAS lib_voice_module_aec)
 
 ## vnr
+FetchContent_MakeAvailable(ai_tools)
 include(${CMAKE_CURRENT_LIST_DIR}/vnr_model.cmake)
 ## VNR Inference
 add_library(lib_voice_module_lib_vnr STATIC)
