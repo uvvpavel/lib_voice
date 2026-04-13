@@ -4,8 +4,9 @@ include(FetchContent)
 
 FetchContent_Declare(
     ai_tools
+    SOURCE_SUBDIR  ai_tools
     GIT_REPOSITORY https://github.com/xmos/ai_tools
-    GIT_TAG        xcommon_cmake # pin version!
+    GIT_TAG        xcommon_cmake #TODO pin version
 )
 
 ## Common compile options
