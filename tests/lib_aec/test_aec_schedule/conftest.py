@@ -1,18 +1,12 @@
 # Copyright 2026 XMOS LIMITED.
 # This Software is subject to the terms of the XMOS Public Licence: Version 1.
+from arch_option import add_arch_option, generate_target_tests
+
 
 def pytest_addoption(parser):
-  parser.addoption(
-    "--arch",
-    nargs = "+",
-    default = ["xs3a"],
-    help = "One or more architectures to run on (e.g. --arch xs3a sim)",
-    choices = ["xs3a", "vx4b"],
-  )
+    add_arch_option(parser, choices=["xs3a", "vx4b"])
+
 
 def pytest_generate_tests(metafunc):
-  if "target" in metafunc.fixturenames:
-    selected_arches = metafunc.config.getoption("arch")
-    if isinstance(selected_arches, str):
-      selected_arches = [selected_arches]
-    metafunc.parametrize("target", selected_arches)
+    generate_target_tests(metafunc)
+
