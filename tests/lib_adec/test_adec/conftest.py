@@ -4,7 +4,6 @@
 import os
 import numpy as np
 from pathlib import Path
-from arch_option import add_arch_option, generate_target_tests
 
 source_wav_file_rate = 48000
 
@@ -59,12 +58,7 @@ def add_test(test_info, test_list, path_to_regression_files, input_audio_files, 
     test_conf['pipeline_config'] = pipeline_config
     test_list.append(test_conf)
 
-def pytest_addoption(parser):
-  add_arch_option(parser, choices=["xs3a", "vx4b"])
-
 def pytest_generate_tests(metafunc):
-  generate_target_tests(metafunc)
-
   hydra_audio_env = os.environ.get("hydra_audio_PATH")
   hydra_audio_base = Path(hydra_audio_env).expanduser() if hydra_audio_env else Path("~/hydra_audio").expanduser()
 

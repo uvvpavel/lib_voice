@@ -7,7 +7,6 @@ import py_voice.modules.vnr as vnr
 import test_utils
 from run_dut import run_dut
 import py_voice
-from arch_option import add_arch_option, generate_target_tests
 
 tflite_model = Path(__file__).parents[3] / "lib_voice" / "src" / "vnr" / "model" / "trained_model.tflite"
 PY_VOICE_ROOT = Path(py_voice.__file__).resolve().parent
@@ -50,10 +49,3 @@ def dut_runner(request, target):
 @pytest.fixture
 def rng():
     return np.random.default_rng(1243)
-
-def pytest_addoption(parser):
-    add_arch_option(parser, choices=["xs3a", "vx4b", "native"])
-
-
-def pytest_generate_tests(metafunc):
-    generate_target_tests(metafunc)
